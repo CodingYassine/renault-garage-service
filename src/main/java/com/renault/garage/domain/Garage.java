@@ -1,5 +1,6 @@
 package com.renault.garage.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -19,5 +20,6 @@ public class Garage {
     @Email @NotBlank private String email;
 
     @OneToMany(mappedBy = "garage", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<GarageOpeningTime> openingTimes;
 }
