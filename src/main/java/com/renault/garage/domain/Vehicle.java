@@ -1,5 +1,6 @@
 package com.renault.garage.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -18,6 +19,7 @@ public class Vehicle {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "garage_id")
+    @JsonIgnore
     private Garage garage;
 
     @NotBlank private String brand;
@@ -28,5 +30,6 @@ public class Vehicle {
     private FuelType typeCarburant;
 
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Accessory> accessories;
 }
