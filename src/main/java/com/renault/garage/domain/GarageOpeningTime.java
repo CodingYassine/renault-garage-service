@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.DayOfWeek;
-import java.time.LocalTime;
+import java.time.LocalDate;
 
 @Entity
 @Getter @Setter
@@ -22,6 +22,6 @@ public class GarageOpeningTime {
     @Enumerated(EnumType.STRING) @NotNull
     private DayOfWeek dayOfWeek;
 
-    @NotNull private LocalTime startTime;
-    @NotNull private LocalTime endTime;
+    @NotNull private LocalDate startTime;
+    @NotNull private LocalDate endTime;
 }
