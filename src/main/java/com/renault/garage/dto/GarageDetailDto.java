@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.DayOfWeek;
 import java.util.List;
+import java.util.Map;
 
 @Data @NoArgsConstructor @AllArgsConstructor
 public class GarageDetailDto {
@@ -13,5 +15,5 @@ public class GarageDetailDto {
     private String address;
     private String telephone;
     private String email;
-    private List<OpeningTimeDto> openingTimes;
+    private Map<DayOfWeek, List<OpeningTimeDto>> openingTimesByDay;
 }
