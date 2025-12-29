@@ -15,5 +15,6 @@ public class GarageDetailDto {
     private String address;
     private String telephone;
     private String email;
+    // Map<DayOfWeek, List<OpeningTime>>
     private Map<DayOfWeek, List<OpeningTimeDto>> openingTimesByDay;
 }

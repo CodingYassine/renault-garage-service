@@ -1,6 +1,5 @@
 package com.renault.garage.domain;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -16,12 +15,11 @@ public class GarageOpeningTime {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "garage_id")
-    @JsonBackReference
     private Garage garage;
 
     @Enumerated(EnumType.STRING) @NotNull
     private DayOfWeek dayOfWeek;
 
-    @NotNull private LocalTime startTime;
-    @NotNull private LocalTime endTime;
+    @NotNull private LocalTime startTime; // ex: "08:00:00"
+    @NotNull private LocalTime endTime;   // ex: "18:00:00"
 }

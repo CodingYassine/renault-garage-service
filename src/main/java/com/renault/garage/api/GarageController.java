@@ -3,8 +3,6 @@ package com.renault.garage.api;
 import com.renault.garage.dto.GarageDetailDto;
 import com.renault.garage.dto.GarageSummaryDto;
 import com.renault.garage.domain.Garage;
-import com.renault.garage.dto.GarageDetailDto;
-import com.renault.garage.dto.GarageSummaryDto;
 import com.renault.garage.service.GarageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,7 +20,12 @@ public class GarageController {
     private final GarageService garageService;
 
     @PostMapping
-    public Garage create(@RequestBody Garage g) { return garageService.create(g); }
+    public ResponseEntity<GarageDetailDto> create(@RequestBody Garage g) {
+        Garage saved = garageService.create(g);
+        return garageService.getDetail(saved.getId())
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.ok().build());
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<GarageDetailDto> get(@PathVariable Long id) {
@@ -31,7 +34,12 @@ public class GarageController {
     }
 
     @PutMapping("/{id}")
-    public Garage update(@PathVariable Long id, @RequestBody Garage g) { return garageService.update(id, g); }
+    public ResponseEntity<GarageDetailDto> update(@PathVariable Long id, @RequestBody Garage g) {
+        Garage saved = garageService.update(id, g);
+        return garageService.getDetail(saved.getId())
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.ok().build());
+    }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) { garageService.delete(id); }

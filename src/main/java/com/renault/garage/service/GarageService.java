@@ -4,6 +4,7 @@ import com.renault.garage.dto.GarageDetailDto;
 import com.renault.garage.dto.GarageSummaryDto;
 import com.renault.garage.dto.OpeningTimeDto;
 import com.renault.garage.domain.Garage;
+import com.renault.garage.domain.GarageOpeningTime;
 import com.renault.garage.repository.GarageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,9 +22,27 @@ import java.util.stream.Collectors;
 public class GarageService {
     private final GarageRepository garageRepository;
 
-    public Garage create(Garage g) { return garageRepository.save(g); }
+    public Garage create(Garage g) {
+        if (g.getOpeningTimes() != null) {
+            for (GarageOpeningTime ot : g.getOpeningTimes()) {
+                ot.setGarage(g);
+            }
+        }
+        return garageRepository.save(g);
+    }
+
     public Optional<Garage> get(Long id) { return garageRepository.findById(id); }
-    public Garage update(Long id, Garage g) { g.setId(id); return garageRepository.save(g); }
+
+    public Garage update(Long id, Garage g) {
+        g.setId(id);
+        if (g.getOpeningTimes() != null) {
+            for (GarageOpeningTime ot : g.getOpeningTimes()) {
+                ot.setGarage(g);
+            }
+        }
+        return garageRepository.save(g);
+    }
+
     public void delete(Long id) { garageRepository.deleteById(id); }
 
     @Transactional(readOnly = true)
@@ -44,13 +63,13 @@ public class GarageService {
         var grouped = g.getOpeningTimes() == null
                 ? new EnumMap<DayOfWeek, java.util.List<OpeningTimeDto>>(DayOfWeek.class)
                 : g.getOpeningTimes().stream().collect(Collectors.groupingBy(
-                        ot -> ot.getDayOfWeek(),
-                        () -> new EnumMap<>(DayOfWeek.class),
-                        java.util.stream.Collectors.mapping(
-                                ot -> new OpeningTimeDto(ot.getStartTime(), ot.getEndTime()),
-                                java.util.stream.Collectors.toList()
-                        )
-                ));
+                ot -> ot.getDayOfWeek(),
+                () -> new EnumMap<>(DayOfWeek.class),
+                Collectors.mapping(
+                        ot -> new OpeningTimeDto(ot.getStartTime(), ot.getEndTime()),
+                        Collectors.toList()
+                )
+        ));
         return new GarageDetailDto(g.getId(), g.getName(), g.getAddress(), g.getTelephone(), g.getEmail(), grouped);
     }
 }

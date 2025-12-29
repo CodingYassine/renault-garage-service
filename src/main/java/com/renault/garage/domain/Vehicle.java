@@ -11,15 +11,15 @@ import java.util.List;
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor @Builder
 @Table(indexes = {
-    @Index(name = "idx_vehicle_model", columnList = "modele"),
-    @Index(name = "idx_vehicle_garage", columnList = "garage_id")
+        @Index(name = "idx_vehicle_model", columnList = "modele"),
+        @Index(name = "idx_vehicle_garage", columnList = "garage_id")
 })
 public class Vehicle {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "garage_id")
-    @JsonIgnore
+    @JsonIgnore // éviter sérialisation du proxy lazy; on renvoie des DTOs
     private Garage garage;
 
     @NotBlank private String brand;
