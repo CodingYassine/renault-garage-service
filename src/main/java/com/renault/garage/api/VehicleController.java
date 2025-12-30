@@ -1,9 +1,11 @@
 package com.renault.garage.api;
 
 import com.renault.garage.domain.Vehicle;
+import com.renault.garage.dto.VehicleCreateRequest;
 import com.renault.garage.dto.VehicleSummaryDto;
 import com.renault.garage.repository.VehicleRepository;
 import com.renault.garage.service.VehicleService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,7 +22,7 @@ public class VehicleController {
     private final VehicleRepository vehicleRepository;
 
     @PostMapping
-    public Vehicle create(@RequestBody Vehicle v) { return vehicleService.addVehicle(v); }
+    public Vehicle create(@Valid @RequestBody VehicleCreateRequest req) { return vehicleService.addVehicle(req); }
 
     @PutMapping("/{id}")
     public Vehicle update(@PathVariable Long id, @RequestBody Vehicle v) { return vehicleService.update(id, v); }

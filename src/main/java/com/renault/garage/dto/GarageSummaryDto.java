@@ -11,4 +11,5 @@ public class GarageSummaryDto {
     private String address;
     private String telephone;
     private String email;
+    private String city;
 }

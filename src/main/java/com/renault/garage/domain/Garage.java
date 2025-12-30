@@ -18,6 +18,9 @@ public class Garage {
     @NotBlank private String telephone;
     @Email @NotBlank private String email;
 
+    // Ajout pour tri/filtres
+    private String city;
+
     @OneToMany(mappedBy = "garage", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GarageOpeningTime> openingTimes;
 }

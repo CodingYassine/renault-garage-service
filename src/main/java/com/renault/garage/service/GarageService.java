@@ -56,7 +56,7 @@ public class GarageService {
     }
 
     private GarageSummaryDto toSummaryDto(Garage g) {
-        return new GarageSummaryDto(g.getId(), g.getName(), g.getAddress(), g.getTelephone(), g.getEmail());
+        return new GarageSummaryDto(g.getId(), g.getName(), g.getAddress(), g.getTelephone(), g.getEmail(), g.getCity());
     }
 
     private GarageDetailDto toDetailDto(Garage g) {

@@ -1,6 +1,7 @@
 package com.renault.garage.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -19,7 +20,7 @@ public class Vehicle {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "garage_id")
-    @JsonIgnore // éviter sérialisation du proxy lazy; on renvoie des DTOs
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) // accepter garage depuis le JSON d’entrée, ne pas le renvoyer en sortie
     private Garage garage;
 
     @NotBlank private String brand;

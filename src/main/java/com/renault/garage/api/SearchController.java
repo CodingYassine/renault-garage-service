@@ -38,14 +38,14 @@ public class SearchController {
     @GetMapping("/garages/by-fuel-type")
     public List<GarageSummaryDto> garagesByFuelType(@RequestParam FuelType fuelType) {
         return garageRepository.findGaragesByFuelType(fuelType).stream()
-                .map(g -> new GarageSummaryDto(g.getId(), g.getName(), g.getAddress(), g.getTelephone(), g.getEmail()))
+                .map(g -> new GarageSummaryDto(g.getId(), g.getName(), g.getAddress(), g.getTelephone(), g.getEmail(), g.getCity()))
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/garages/by-accessory")
     public List<GarageSummaryDto> garagesByAccessory(@RequestParam String nomOrType) {
         return garageRepository.findGaragesWithAccessory(nomOrType).stream()
-                .map(g -> new GarageSummaryDto(g.getId(), g.getName(), g.getAddress(), g.getTelephone(), g.getEmail()))
+                .map(g -> new GarageSummaryDto(g.getId(), g.getName(), g.getAddress(), g.getTelephone(), g.getEmail(), g.getCity()))
                 .collect(Collectors.toList());
     }
 }
