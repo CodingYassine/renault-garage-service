@@ -1,4 +1,4 @@
-package com.renault.garage.api;
+package com.renault.garage.controller;
 
 import com.renault.garage.dto.GarageDetailDto;
 import com.renault.garage.dto.GarageSummaryDto;

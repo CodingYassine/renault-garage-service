@@ -20,7 +20,6 @@ class VehicleServicePublisherTest {
     void publishEventOnCreation_withEntity() {
         VehicleRepository repo = mock(VehicleRepository.class);
         KafkaTemplate<String, String> kafka = mock(KafkaTemplate.class);
-        // Si ta classe VehicleService a un constructeur (repo, kafka):
         GarageRepository garageRepo = Mockito.mock(GarageRepository.class);
         VehicleService service = new VehicleService(repo, garageRepo, kafka);
 

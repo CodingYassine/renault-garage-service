@@ -9,7 +9,6 @@ public class VehicleEventConsumer {
 
     @KafkaListener(topics = "${garage.events.vehicle-created-topic}", groupId = "garage-service")
     public void onVehicleCreated(ConsumerRecord<String, String> record) {
-        // TODO: implémenter la logique de consommation (audit, projection, notifications...)
         System.out.println("Vehicle event consumed: " + record.value());
     }
 }

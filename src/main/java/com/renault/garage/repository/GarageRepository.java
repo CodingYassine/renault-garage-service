@@ -21,6 +21,8 @@ public interface GarageRepository extends JpaRepository<Garage, Long> {
     @Query("select distinct g from Vehicle v join v.garage g where v.typeCarburant = :fuelType")
     List<Garage> findGaragesByFuelType(@Param("fuelType") FuelType fuelType);
 
-    @Query("select distinct g from Accessory a join a.vehicle v join v.garage g where lower(a.nom) = lower(:term) or lower(a.type) = lower(:term)")
+    @Query("select distinct g from Accessory a join a.vehicle v join v.garage g " +
+            "where lower(a.nom) like lower(concat('%', :term, '%')) " +
+            "or lower(a.type) like lower(concat('%', :term, '%'))")
     List<Garage> findGaragesWithAccessory(@Param("term") String term);
 }

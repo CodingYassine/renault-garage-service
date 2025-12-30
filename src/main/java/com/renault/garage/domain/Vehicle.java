@@ -20,7 +20,7 @@ public class Vehicle {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "garage_id")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) // accepter garage depuis le JSON d’entrée, ne pas le renvoyer en sortie
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Garage garage;
 
     @NotBlank private String brand;

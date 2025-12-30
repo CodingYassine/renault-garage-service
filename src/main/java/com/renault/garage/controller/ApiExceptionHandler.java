@@ -1,4 +1,4 @@
-package com.renault.garage.api;
+package com.renault.garage.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;

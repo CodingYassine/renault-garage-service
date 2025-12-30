@@ -20,6 +20,6 @@ public class GarageOpeningTime {
     @Enumerated(EnumType.STRING) @NotNull
     private DayOfWeek dayOfWeek;
 
-    @NotNull private LocalTime startTime; // ex: "08:00:00"
-    @NotNull private LocalTime endTime;   // ex: "18:00:00"
+    @NotNull private LocalTime startTime;
+    @NotNull private LocalTime endTime;
 }
