@@ -1,5 +1,6 @@
 package com.renault.garage.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.renault.garage.domain.FuelType;
 import com.renault.garage.domain.Garage;
 import com.renault.garage.domain.Vehicle;
@@ -21,7 +22,8 @@ class VehicleServicePublisherTest {
         VehicleRepository repo = mock(VehicleRepository.class);
         KafkaTemplate<String, String> kafka = mock(KafkaTemplate.class);
         GarageRepository garageRepo = Mockito.mock(GarageRepository.class);
-        VehicleService service = new VehicleService(repo, garageRepo, kafka);
+        ObjectMapper objectMapper = new ObjectMapper();
+        VehicleService service = new VehicleService(repo, garageRepo, kafka, objectMapper);
 
         Garage g = Garage.builder().id(1L).name("A").address("B").telephone("C").email("d@e.com").build();
         Vehicle v = Vehicle.builder()
@@ -48,6 +50,9 @@ class VehicleServicePublisherTest {
         assertTrue(payload.contains("\"vehicleId\":99"));
         assertTrue(payload.contains("\"garageId\":1"));
         assertTrue(payload.contains("\"modele\":\"Clio\""));
+        assertTrue(payload.contains("\"brand\":\"Renault\""));
+        assertTrue(payload.contains("\"anneeFabrication\":2022"));
+        assertTrue(payload.contains("\"typeCarburant\":\"ESSENCE\""));
     }
 
     @Test
@@ -55,8 +60,8 @@ class VehicleServicePublisherTest {
         VehicleRepository repo = mock(VehicleRepository.class);
         GarageRepository garageRepo = mock(GarageRepository.class);
         KafkaTemplate<String, String> kafka = mock(KafkaTemplate.class);
-        // Si ta classe VehicleService a un constructeur (repo, garageRepo, kafka):
-        VehicleService service = new VehicleService(repo, garageRepo, kafka);
+        ObjectMapper objectMapper = new ObjectMapper();
+        VehicleService service = new VehicleService(repo, garageRepo, kafka, objectMapper);
 
         Garage g = Garage.builder().id(1L).name("A").address("B").telephone("C").email("d@e.com").build();
         when(garageRepo.findById(1L)).thenReturn(java.util.Optional.of(g));
@@ -86,5 +91,8 @@ class VehicleServicePublisherTest {
         assertTrue(payload.contains("\"vehicleId\":100"));
         assertTrue(payload.contains("\"garageId\":1"));
         assertTrue(payload.contains("\"modele\":\"Clio\""));
+        assertTrue(payload.contains("\"brand\":\"Renault\""));
+        assertTrue(payload.contains("\"anneeFabrication\":2022"));
+        assertTrue(payload.contains("\"typeCarburant\":\"ESSENCE\""));
     }
 }

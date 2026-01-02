@@ -1,8 +1,11 @@
 package com.renault.garage.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.renault.garage.domain.Garage;
 import com.renault.garage.domain.Vehicle;
 import com.renault.garage.dto.VehicleCreateRequest;
+import com.renault.garage.events.VehicleCreatedEvent;
 import com.renault.garage.repository.GarageRepository;
 import com.renault.garage.repository.VehicleRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +23,7 @@ public class VehicleService {
     private final VehicleRepository vehicleRepository;
     private final GarageRepository garageRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
+    private final ObjectMapper objectMapper;
 
     private final String vehicleCreatedTopic = "vehicle.created";
 
@@ -45,9 +49,7 @@ public class VehicleService {
                 .build();
 
         Vehicle saved = vehicleRepository.save(v);
-        String payload = String.format("{\"event\":\"VEHICLE_CREATED\",\"vehicleId\":%d,\"garageId\":%d,\"modele\":\"%s\"}",
-                saved.getId(), g.getId(), saved.getModele());
-        kafkaTemplate.send(vehicleCreatedTopic, payload);
+        publishVehicleCreatedEvent(saved);
         return saved;
     }
 
@@ -59,10 +61,27 @@ public class VehicleService {
             throw new IllegalStateException("Quota dépassé: un garage ne peut stocker que 50 véhicules.");
         }
         Vehicle saved = vehicleRepository.save(v);
-        String payload = String.format("{\"event\":\"VEHICLE_CREATED\",\"vehicleId\":%d,\"garageId\":%d,\"modele\":\"%s\"}",
-                saved.getId(), saved.getGarage().getId(), saved.getModele());
-        kafkaTemplate.send(vehicleCreatedTopic, payload);
+        publishVehicleCreatedEvent(saved);
         return saved;
+    }
+
+    private void publishVehicleCreatedEvent(Vehicle vehicle) {
+        VehicleCreatedEvent event = VehicleCreatedEvent.builder()
+                .event("VEHICLE_CREATED")
+                .vehicleId(vehicle.getId())
+                .garageId(vehicle.getGarage().getId())
+                .brand(vehicle.getBrand())
+                .modele(vehicle.getModele())
+                .anneeFabrication(vehicle.getAnneeFabrication())
+                .typeCarburant(vehicle.getTypeCarburant() != null ? vehicle.getTypeCarburant().name() : null)
+                .build();
+
+        try {
+            String payload = objectMapper.writeValueAsString(event);
+            kafkaTemplate.send(vehicleCreatedTopic, payload);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to serialize VehicleCreatedEvent", e);
+        }
     }
 
     public Vehicle update(Long id, Vehicle v) { v.setId(id); return vehicleRepository.save(v); }
