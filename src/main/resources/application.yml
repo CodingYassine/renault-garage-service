@@ -27,7 +27,7 @@ server:
 
 garage:
   events:
-    vehicle-created-topic: vehicle.created
+    vehicle-created-topic: VEHICLE_CREATED
 
 logging:
   level:

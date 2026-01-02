@@ -1,5 +1,6 @@
 package com.renault.garage.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.renault.garage.domain.FuelType;
 import com.renault.garage.domain.Garage;
 import com.renault.garage.domain.Vehicle;
@@ -11,30 +12,34 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.kafka.core.KafkaTemplate;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 class VehicleServicePublisherTest {
 
     @Test
-    void publishEventOnCreation_withEntity() {
+    void shouldPublishEventWhenAddingEntity() {
         VehicleRepository repo = mock(VehicleRepository.class);
+        GarageRepository garageRepo = mock(GarageRepository.class);
         KafkaTemplate<String, String> kafka = mock(KafkaTemplate.class);
-        GarageRepository garageRepo = Mockito.mock(GarageRepository.class);
-        VehicleService service = new VehicleService(repo, garageRepo, kafka);
+        ObjectMapper objectMapper = new ObjectMapper();
+        VehicleService service = new VehicleService(repo, garageRepo, kafka, objectMapper);
 
         Garage g = Garage.builder().id(1L).name("A").address("B").telephone("C").email("d@e.com").build();
         Vehicle v = Vehicle.builder()
-                .garage(g).brand("Renault").modele("Clio")
-                .anneeFabrication(2022).typeCarburant(FuelType.ESSENCE)
+                .garage(g)
+                .brand("Renault")
+                .modele("Clio")
+                .anneeFabrication(2020)
+                .typeCarburant(FuelType.ESSENCE)
                 .build();
 
-        // quota OK
-        when(repo.countByGarage_Id(1L)).thenReturn(10L);
-        // simulate save returns entity with id
-        Vehicle saved = Vehicle.builder().id(99L).garage(g).brand(v.getBrand()).modele(v.getModele())
+        Vehicle saved = Vehicle.builder()
+                .id(99L).garage(g).brand(v.getBrand()).modele(v.getModele())
                 .anneeFabrication(v.getAnneeFabrication()).typeCarburant(v.getTypeCarburant()).build();
         when(repo.save(v)).thenReturn(saved);
+        when(repo.countByGarage_Id(1L)).thenReturn(0L);
 
         service.addVehicle(v);
 
@@ -51,12 +56,12 @@ class VehicleServicePublisherTest {
     }
 
     @Test
-    void publishEventOnCreation_withDto() {
+    void shouldPublishEventWhenAddingViaDto() {
         VehicleRepository repo = mock(VehicleRepository.class);
         GarageRepository garageRepo = mock(GarageRepository.class);
         KafkaTemplate<String, String> kafka = mock(KafkaTemplate.class);
-        // Si ta classe VehicleService a un constructeur (repo, garageRepo, kafka):
-        VehicleService service = new VehicleService(repo, garageRepo, kafka);
+        ObjectMapper objectMapper = new ObjectMapper();
+        VehicleService service = new VehicleService(repo, garageRepo, kafka, objectMapper);
 
         Garage g = Garage.builder().id(1L).name("A").address("B").telephone("C").email("d@e.com").build();
         when(garageRepo.findById(1L)).thenReturn(java.util.Optional.of(g));

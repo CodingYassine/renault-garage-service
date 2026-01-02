@@ -1,5 +1,6 @@
 package com.renault.garage.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.renault.garage.domain.FuelType;
 import com.renault.garage.domain.Garage;
 import com.renault.garage.domain.Vehicle;
@@ -9,7 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.kafka.core.KafkaTemplate;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class VehicleServiceTest {
     @Test
@@ -17,7 +19,8 @@ class VehicleServiceTest {
         VehicleRepository repo = Mockito.mock(VehicleRepository.class);
         GarageRepository garageRepo = Mockito.mock(GarageRepository.class);
         KafkaTemplate<String, String> kafka = Mockito.mock(KafkaTemplate.class);
-        VehicleService service = new VehicleService(repo, garageRepo, kafka);
+        ObjectMapper objectMapper = new ObjectMapper();
+        VehicleService service = new VehicleService(repo, garageRepo, kafka, objectMapper);
 
         Garage g = Garage.builder().id(1L).name("A").address("B").telephone("C").email("d@e.com").build();
         Vehicle v = Vehicle.builder()
