@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class VehicleService {
     private static final int MAX_VEHICLES_PER_GARAGE = 50;
+    private static final String EVENT_TYPE_VEHICLE_CREATED = "VEHICLE_CREATED";
 
     private final VehicleRepository vehicleRepository;
     private final GarageRepository garageRepository;
@@ -67,7 +68,7 @@ public class VehicleService {
 
     private void publishVehicleCreatedEvent(Vehicle vehicle) {
         VehicleCreatedEvent event = VehicleCreatedEvent.builder()
-                .event("VEHICLE_CREATED")
+                .event(EVENT_TYPE_VEHICLE_CREATED)
                 .vehicleId(vehicle.getId())
                 .garageId(vehicle.getGarage().getId())
                 .brand(vehicle.getBrand())
@@ -80,7 +81,7 @@ public class VehicleService {
             String payload = objectMapper.writeValueAsString(event);
             kafkaTemplate.send(vehicleCreatedTopic, payload);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to serialize VehicleCreatedEvent", e);
+            throw new RuntimeException("Failed to serialize VehicleCreatedEvent for vehicle ID: " + vehicle.getId(), e);
         }
     }
 
