@@ -1,7 +1,8 @@
 package com.renault.garage.controller;
 
-import com.renault.garage.domain.Accessory;
+import com.renault.garage.dto.AccessoryResponse;
 import com.renault.garage.service.AccessoryService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,14 +15,20 @@ public class AccessoryController {
     private final AccessoryService accessoryService;
 
     @PostMapping
-    public Accessory create(@RequestBody Accessory a) { return accessoryService.add(a); }
+    public AccessoryResponse create(@Valid @RequestBody AccessoryResponse req) {
+        return accessoryService.create(req);
+    }
 
     @PutMapping("/{id}")
-    public Accessory update(@PathVariable Long id, @RequestBody Accessory a) { return accessoryService.update(id, a); }
+    public AccessoryResponse update(@PathVariable Long id, @Valid @RequestBody AccessoryResponse req) {
+        return accessoryService.update(id, req);
+    }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) { accessoryService.delete(id); }
 
     @GetMapping("/vehicle/{vehicleId}")
-    public List<Accessory> listByVehicle(@PathVariable Long vehicleId) { return accessoryService.listByVehicle(vehicleId); }
+    public List<AccessoryResponse> listByVehicle(@PathVariable Long vehicleId) {
+        return accessoryService.listByVehicle(vehicleId);
+    }
 }

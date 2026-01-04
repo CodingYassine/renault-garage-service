@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.renault.garage.domain.FuelType;
 import com.renault.garage.domain.Garage;
 import com.renault.garage.domain.Vehicle;
+import com.renault.garage.mapper.VehicleMapper;
 import com.renault.garage.repository.GarageRepository;
 import com.renault.garage.repository.VehicleRepository;
 import org.junit.jupiter.api.Test;
@@ -20,7 +21,10 @@ class VehicleServiceTest {
         GarageRepository garageRepo = Mockito.mock(GarageRepository.class);
         KafkaTemplate<String, String> kafka = Mockito.mock(KafkaTemplate.class);
         ObjectMapper objectMapper = new ObjectMapper();
-        VehicleService service = new VehicleService(repo, garageRepo, kafka, objectMapper);
+        VehicleMapper vehicleMapper = Mockito.mock(VehicleMapper.class);
+
+        // Note: VehicleService now requires VehicleMapper as last constructor arg
+        VehicleService service = new VehicleService(repo, garageRepo, kafka, objectMapper, vehicleMapper);
 
         Garage g = Garage.builder().id(1L).name("A").address("B").telephone("C").email("d@e.com").build();
         Vehicle v = Vehicle.builder()

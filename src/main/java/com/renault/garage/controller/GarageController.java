@@ -1,9 +1,9 @@
 package com.renault.garage.controller;
 
-import com.renault.garage.dto.GarageDetailDto;
+import com.renault.garage.dto.GarageRequest;
 import com.renault.garage.dto.GarageSummaryDto;
-import com.renault.garage.domain.Garage;
 import com.renault.garage.service.GarageService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,25 +20,21 @@ public class GarageController {
     private final GarageService garageService;
 
     @PostMapping
-    public ResponseEntity<GarageDetailDto> create(@RequestBody Garage g) {
-        Garage saved = garageService.create(g);
-        return garageService.getDetail(saved.getId())
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.ok().build());
+    public ResponseEntity<GarageSummaryDto> create(@Valid @RequestBody GarageRequest req) {
+        GarageSummaryDto dto = garageService.create(req);
+        return ResponseEntity.ok(dto);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GarageDetailDto> get(@PathVariable Long id) {
-        Optional<GarageDetailDto> dto = garageService.getDetail(id);
+    public ResponseEntity<GarageSummaryDto> get(@PathVariable Long id) {
+        Optional<GarageSummaryDto> dto = garageService.getDetail(id);
         return dto.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<GarageDetailDto> update(@PathVariable Long id, @RequestBody Garage g) {
-        Garage saved = garageService.update(id, g);
-        return garageService.getDetail(saved.getId())
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.ok().build());
+    public ResponseEntity<GarageSummaryDto> update(@PathVariable Long id, @Valid @RequestBody GarageRequest req) {
+        GarageSummaryDto dto = garageService.update(id, req);
+        return ResponseEntity.ok(dto);
     }
 
     @DeleteMapping("/{id}")

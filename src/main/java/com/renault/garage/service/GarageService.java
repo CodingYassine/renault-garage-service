@@ -1,75 +1,64 @@
 package com.renault.garage.service;
 
-import com.renault.garage.dto.GarageDetailDto;
-import com.renault.garage.dto.GarageSummaryDto;
-import com.renault.garage.dto.OpeningTimeDto;
 import com.renault.garage.domain.Garage;
-import com.renault.garage.domain.GarageOpeningTime;
+import com.renault.garage.dto.GarageRequest;
+import com.renault.garage.dto.GarageSummaryDto;
+import com.renault.garage.mapper.GarageMapper;
 import com.renault.garage.repository.GarageRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.DayOfWeek;
-import java.util.EnumMap;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class GarageService {
     private final GarageRepository garageRepository;
+    private final GarageMapper garageMapper;
 
-    public Garage create(Garage g) {
-        if (g.getOpeningTimes() != null) {
-            for (GarageOpeningTime ot : g.getOpeningTimes()) {
-                ot.setGarage(g);
-            }
-        }
-        return garageRepository.save(g);
+    /**
+     * Create a Garage from a GarageRequest DTO and return a GarageSummaryDto.
+     */
+    @Transactional
+    public GarageSummaryDto create(GarageRequest req) {
+        Garage entity = garageMapper.toEntity(req);
+        Garage saved = garageRepository.save(entity);
+        return garageMapper.toSummaryDto(saved);
     }
 
-    public Optional<Garage> get(Long id) { return garageRepository.findById(id); }
-
-    public Garage update(Long id, Garage g) {
-        g.setId(id);
-        if (g.getOpeningTimes() != null) {
-            for (GarageOpeningTime ot : g.getOpeningTimes()) {
-                ot.setGarage(g);
-            }
-        }
-        return garageRepository.save(g);
+    /**
+     * Update an existing Garage from a GarageRequest DTO and return a GarageSummaryDto.
+     */
+    @Transactional
+    public GarageSummaryDto update(Long id, GarageRequest req) {
+        Garage existing = garageRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Garage not found: " + id));
+        garageMapper.updateFromRequest(req, existing);
+        Garage saved = garageRepository.save(existing);
+        return garageMapper.toSummaryDto(saved);
     }
 
-    public void delete(Long id) { garageRepository.deleteById(id); }
+    /**
+     * Return the Garage summary DTO (detail) by id.
+     */
+    public Optional<GarageSummaryDto> getDetail(Long id) {
+        return garageRepository.findById(id).map(garageMapper::toSummaryDto);
+    }
 
-    @Transactional(readOnly = true)
+    /**
+     * Return summaries (DTO) for listing.
+     */
     public Page<GarageSummaryDto> listSummary(Pageable pageable) {
-        return garageRepository.findAll(pageable).map(this::toSummaryDto);
+        return garageRepository.findAll(pageable).map(garageMapper::toSummaryDto);
     }
 
-    @Transactional(readOnly = true)
-    public Optional<GarageDetailDto> getDetail(Long id) {
-        return garageRepository.findByIdWithOpeningTimes(id).map(this::toDetailDto);
-    }
-
-    private GarageSummaryDto toSummaryDto(Garage g) {
-        return new GarageSummaryDto(g.getId(), g.getName(), g.getAddress(), g.getTelephone(), g.getEmail(), g.getCity());
-    }
-
-    private GarageDetailDto toDetailDto(Garage g) {
-        var grouped = g.getOpeningTimes() == null
-                ? new EnumMap<DayOfWeek, java.util.List<OpeningTimeDto>>(DayOfWeek.class)
-                : g.getOpeningTimes().stream().collect(Collectors.groupingBy(
-                ot -> ot.getDayOfWeek(),
-                () -> new EnumMap<>(DayOfWeek.class),
-                Collectors.mapping(
-                        ot -> new OpeningTimeDto(ot.getStartTime(), ot.getEndTime()),
-                        Collectors.toList()
-                )
-        ));
-        return new GarageDetailDto(g.getId(), g.getName(), g.getAddress(), g.getTelephone(), g.getEmail(), grouped);
+    /**
+     * Delete garage by id.
+     */
+    public void delete(Long id) {
+        garageRepository.deleteById(id);
     }
 }

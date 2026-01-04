@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 @Data @NoArgsConstructor @AllArgsConstructor
-public class GarageDetailDto {
+public class GarageRequest {
     private Long id;
     private String name;
     private String address;

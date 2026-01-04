@@ -5,10 +5,13 @@ import com.renault.garage.domain.FuelType;
 import com.renault.garage.domain.Garage;
 import com.renault.garage.domain.Vehicle;
 import com.renault.garage.dto.VehicleCreateRequest;
+import com.renault.garage.dto.VehicleSummaryDto;
+import com.renault.garage.mapper.VehicleMapper;
 import com.renault.garage.repository.GarageRepository;
 import com.renault.garage.repository.VehicleRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+
 import org.mockito.Mockito;
 import org.springframework.kafka.core.KafkaTemplate;
 
@@ -24,7 +27,10 @@ class VehicleServicePublisherTest {
         GarageRepository garageRepo = mock(GarageRepository.class);
         KafkaTemplate<String, String> kafka = mock(KafkaTemplate.class);
         ObjectMapper objectMapper = new ObjectMapper();
-        VehicleService service = new VehicleService(repo, garageRepo, kafka, objectMapper);
+        VehicleMapper vehicleMapper = mock(VehicleMapper.class);
+
+        // Note: order of constructor args follows fields in VehicleService
+        VehicleService service = new VehicleService(repo, garageRepo, kafka, objectMapper, vehicleMapper);
 
         Garage g = Garage.builder().id(1L).name("A").address("B").telephone("C").email("d@e.com").build();
         Vehicle v = Vehicle.builder()
@@ -38,8 +44,20 @@ class VehicleServicePublisherTest {
         Vehicle saved = Vehicle.builder()
                 .id(99L).garage(g).brand(v.getBrand()).modele(v.getModele())
                 .anneeFabrication(v.getAnneeFabrication()).typeCarburant(v.getTypeCarburant()).build();
+
         when(repo.save(v)).thenReturn(saved);
         when(repo.countByGarage_Id(1L)).thenReturn(0L);
+
+        // Stub mapper to avoid calling MapStruct impl
+        VehicleSummaryDto dtoSaved = new VehicleSummaryDto(
+                saved.getId(),
+                saved.getGarage() != null ? saved.getGarage().getId() : null,
+                saved.getBrand(),
+                saved.getModele(),
+                saved.getAnneeFabrication(),
+                saved.getTypeCarburant()
+        );
+        when(vehicleMapper.toSummaryDto(saved)).thenReturn(dtoSaved);
 
         service.addVehicle(v);
 
@@ -61,7 +79,9 @@ class VehicleServicePublisherTest {
         GarageRepository garageRepo = mock(GarageRepository.class);
         KafkaTemplate<String, String> kafka = mock(KafkaTemplate.class);
         ObjectMapper objectMapper = new ObjectMapper();
-        VehicleService service = new VehicleService(repo, garageRepo, kafka, objectMapper);
+        VehicleMapper vehicleMapper = mock(VehicleMapper.class);
+
+        VehicleService service = new VehicleService(repo, garageRepo, kafka, objectMapper, vehicleMapper);
 
         Garage g = Garage.builder().id(1L).name("A").address("B").telephone("C").email("d@e.com").build();
         when(garageRepo.findById(1L)).thenReturn(java.util.Optional.of(g));
@@ -78,6 +98,17 @@ class VehicleServicePublisherTest {
                 .id(100L).garage(g).brand(req.getBrand()).modele(req.getModele())
                 .anneeFabrication(req.getAnneeFabrication()).typeCarburant(req.getTypeCarburant()).build();
         when(repo.save(Mockito.any(Vehicle.class))).thenReturn(persisted);
+
+        // Stub mapper to avoid calling MapStruct impl
+        VehicleSummaryDto dtoPersisted = new VehicleSummaryDto(
+                persisted.getId(),
+                persisted.getGarage() != null ? persisted.getGarage().getId() : null,
+                persisted.getBrand(),
+                persisted.getModele(),
+                persisted.getAnneeFabrication(),
+                persisted.getTypeCarburant()
+        );
+        when(vehicleMapper.toSummaryDto(persisted)).thenReturn(dtoPersisted);
 
         service.addVehicle(req);
 

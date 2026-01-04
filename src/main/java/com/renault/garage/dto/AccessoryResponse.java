@@ -8,7 +8,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-public class AccessoryCreateOrUpdateRequest {
+public class AccessoryResponse {
     @NotNull private Long vehicleId;
     @NotBlank private String nom;
     @NotBlank private String description;
