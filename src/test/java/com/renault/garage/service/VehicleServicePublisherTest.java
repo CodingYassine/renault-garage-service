@@ -14,6 +14,7 @@ import org.mockito.ArgumentCaptor;
 
 import org.mockito.Mockito;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -31,6 +32,9 @@ class VehicleServicePublisherTest {
 
         // Note: order of constructor args follows fields in VehicleService
         VehicleService service = new VehicleService(repo, garageRepo, kafka, objectMapper, vehicleMapper);
+
+        // Ensure the topic field is set when instantiating the service manually in tests
+        ReflectionTestUtils.setField(service, "vehicleCreatedTopic", "vehicle.created");
 
         Garage g = Garage.builder().id(1L).name("A").address("B").telephone("C").email("d@e.com").build();
         Vehicle v = Vehicle.builder()
@@ -83,6 +87,9 @@ class VehicleServicePublisherTest {
 
         VehicleService service = new VehicleService(repo, garageRepo, kafka, objectMapper, vehicleMapper);
 
+        // Ensure the topic field is set when instantiating the service manually in tests
+        ReflectionTestUtils.setField(service, "vehicleCreatedTopic", "vehicle.created");
+
         Garage g = Garage.builder().id(1L).name("A").address("B").telephone("C").email("d@e.com").build();
         when(garageRepo.findById(1L)).thenReturn(java.util.Optional.of(g));
         when(repo.countByGarage_Id(1L)).thenReturn(0L);
@@ -93,6 +100,16 @@ class VehicleServicePublisherTest {
         req.setModele("Clio");
         req.setAnneeFabrication(2022);
         req.setTypeCarburant(FuelType.ESSENCE);
+
+        // Stub mapper.toEntity to return a non-null Vehicle so service can set the garage without NPE
+        Vehicle vFromMapper = Vehicle.builder()
+                .garage(null) // service will set the managed garage entity
+                .brand(req.getBrand())
+                .modele(req.getModele())
+                .anneeFabrication(req.getAnneeFabrication())
+                .typeCarburant(req.getTypeCarburant())
+                .build();
+        when(vehicleMapper.toEntity(req)).thenReturn(vFromMapper);
 
         Vehicle persisted = Vehicle.builder()
                 .id(100L).garage(g).brand(req.getBrand()).modele(req.getModele())

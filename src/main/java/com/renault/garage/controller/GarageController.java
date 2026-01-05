@@ -25,9 +25,21 @@ public class GarageController {
         return ResponseEntity.ok(dto);
     }
 
+    /**
+     * Retourne le résumé (summary) du garage.
+     */
     @GetMapping("/{id}")
-    public ResponseEntity<GarageSummaryDto> get(@PathVariable Long id) {
-        Optional<GarageSummaryDto> dto = garageService.getDetail(id);
+    public ResponseEntity<GarageSummaryDto> getSummary(@PathVariable Long id) {
+        Optional<GarageSummaryDto> dto = garageService.getSummary(id);
+        return dto.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    /**
+     * Retourne le DTO de détail (GarageRequest) pour un usage administratif/édition.
+     */
+    @GetMapping("/{id}/detail")
+    public ResponseEntity<GarageRequest> getDetail(@PathVariable Long id) {
+        Optional<GarageRequest> dto = garageService.getDetail(id);
         return dto.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -38,7 +50,10 @@ public class GarageController {
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) { garageService.delete(id); }
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        garageService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 
     @GetMapping
     public Page<GarageSummaryDto> list(
