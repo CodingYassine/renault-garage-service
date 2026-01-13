@@ -1,5 +1,6 @@
 package com.renault.garage.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,6 +23,8 @@ public class GarageRequest {
     private String telephone;
     @Email @NotBlank
     private String email;
-    @NotNull
+    @NotBlank
+    private String city;
+    @Valid
     private Map<DayOfWeek, List<OpeningTimeDto>> openingTimesByDay;
 }
